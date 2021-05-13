@@ -34,6 +34,7 @@ import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.Reflector;
 
 /**
+ * Mybatis默认对象工厂
  * @author Clinton Begin
  */
 public class DefaultObjectFactory implements ObjectFactory, Serializable {
@@ -48,14 +49,24 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+    // 获取需要创建的Class对象
     Class<?> classToCreate = resolveInterface(type);
     // we know types are assignable
     return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
   }
 
+  /**
+   *
+   * @param type 创建的Class类型
+   * @param constructorArgTypes 构造器参数类型
+   * @param constructorArgs 构造器参数
+   * @param <T>
+   * @return
+   */
   private  <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     try {
       Constructor<T> constructor;
+      // 构造器参数为空
       if (constructorArgTypes == null || constructorArgs == null) {
         constructor = type.getDeclaredConstructor();
         try {
@@ -92,12 +103,16 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   protected Class<?> resolveInterface(Class<?> type) {
     Class<?> classToCreate;
     if (type == List.class || type == Collection.class || type == Iterable.class) {
+      // 为集合默认为ArrayList
       classToCreate = ArrayList.class;
     } else if (type == Map.class) {
+      //Map默认为HashMap
       classToCreate = HashMap.class;
     } else if (type == SortedSet.class) { // issue #510 Collections Support
+      //SortedSet 默认为TreeSet
       classToCreate = TreeSet.class;
     } else if (type == Set.class) {
+      // ...
       classToCreate = HashSet.class;
     } else {
       classToCreate = type;

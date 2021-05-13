@@ -45,17 +45,26 @@ public class ScriptRunner {
 
   private final Connection connection;
 
+  // SQL 异常是否中断程序执行
   private boolean stopOnError;
+  // 是否跑出SQLWarning警告
   private boolean throwWarning;
+  // 是否自动提交
   private boolean autoCommit;
+  // true:批量执行文件中SQL语句.false:逐条执行SQL语句
   private boolean sendFullScript;
+  // 是否取出windows系统换行符中的\r
   private boolean removeCRs;
+  // 设置Statement属性是否支持转义处理
   private boolean escapeProcessing = true;
 
+  // 日志输出位置
   private PrintWriter logWriter = new PrintWriter(System.out);
+  // 错误日志输出位置
   private PrintWriter errorLogWriter = new PrintWriter(System.err);
-
+  // SQL脚本中的分隔符
   private String delimiter = DEFAULT_DELIMITER;
+  // 是否支持SQL语句分隔符单独占一行
   private boolean fullLineDelimiter;
 
   public ScriptRunner(Connection connection) {
@@ -113,6 +122,7 @@ public class ScriptRunner {
     setAutoCommit();
 
     try {
+      // 是否一次性执行所有SQL语句
       if (sendFullScript) {
         executeFullScript(reader);
       } else {
@@ -172,6 +182,9 @@ public class ScriptRunner {
     }
   }
 
+  /**
+   * 设置事务是否自动提交
+   */
   private void setAutoCommit() {
     try {
       if (autoCommit != connection.getAutoCommit()) {
@@ -211,18 +224,22 @@ public class ScriptRunner {
   private void handleLine(StringBuilder command, String line) throws SQLException {
     String trimmedLine = line.trim();
     if (lineIsComment(trimmedLine)) {
+      // 判断此行是否为SQL注释
       Matcher matcher = DELIMITER_PATTERN.matcher(trimmedLine);
       if (matcher.find()) {
         delimiter = matcher.group(5);
       }
       println(trimmedLine);
     } else if (commandReadyToExecute(trimmedLine)) {
+      // 判断此行是否包含分号
       command.append(line, 0, line.lastIndexOf(delimiter));
       command.append(LINE_SEPARATOR);
       println(command);
+      // 执行SQL
       executeStatement(command.toString());
       command.setLength(0);
     } else if (trimmedLine.length() > 0) {
+      // 此行无分号，说明SQL未结束，追加本行内容到之前的读取内容中
       command.append(line);
       command.append(LINE_SEPARATOR);
     }

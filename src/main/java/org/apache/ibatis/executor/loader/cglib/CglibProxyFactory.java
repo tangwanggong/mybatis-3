@@ -40,6 +40,7 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * cglib方式动态代理
  * @author Clinton Begin
  */
 public class CglibProxyFactory implements ProxyFactory {
@@ -64,6 +65,7 @@ public class CglibProxyFactory implements ProxyFactory {
     return EnhancedDeserializationProxyImpl.createProxy(target, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
   }
 
+  // cglib方式动态代理
   static Object crateProxy(Class<?> type, Callback callback, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     Enhancer enhancer = new Enhancer();
     enhancer.setCallback(callback);
@@ -118,6 +120,7 @@ public class CglibProxyFactory implements ProxyFactory {
       return enhanced;
     }
 
+    // 代理
     @Override
     public Object intercept(Object enhanced, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       final String methodName = method.getName();

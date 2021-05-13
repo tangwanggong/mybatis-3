@@ -499,6 +499,7 @@ public abstract class AbstractSQL<T> {
 
   private static class SQLStatement {
 
+    // SQL语句的类型
     public enum StatementType {
       DELETE, INSERT, SELECT, UPDATE
     }
@@ -538,6 +539,8 @@ public abstract class AbstractSQL<T> {
     }
 
     StatementType statementType;
+
+    // 用于记录SQL实例中select(),update()等方法调用参数
     List<String> sets = new ArrayList<>();
     List<String> select = new ArrayList<>();
     List<String> tables = new ArrayList<>();
@@ -553,6 +556,7 @@ public abstract class AbstractSQL<T> {
     List<String> lastList = new ArrayList<>();
     List<String> columns = new ArrayList<>();
     List<List<String>> valuesList = new ArrayList<>();
+    // 是否包含distinct关键字
     boolean distinct;
     String offset;
     String limit;
@@ -563,6 +567,15 @@ public abstract class AbstractSQL<T> {
       valuesList.add(new ArrayList<>());
     }
 
+    /**
+     * 拼装SQL
+     * @param builder SQL字符串
+     * @param keyword SQL关键字
+     * @param parts SQL关键字子句内容
+     * @param open SQL关键字子句开始
+     * @param close SQL关键字子句结束
+     * @param conjunction SQL关键字连接
+     */
     private void sqlClause(SafeAppendable builder, String keyword, List<String> parts, String open, String close,
                            String conjunction) {
       if (!parts.isEmpty()) {
@@ -643,6 +656,7 @@ public abstract class AbstractSQL<T> {
 
       String answer;
 
+      // 判断当前SQL语句类型
       switch (statementType) {
         case DELETE:
           answer = deleteSQL(builder);
