@@ -29,31 +29,40 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 用于描述Mapper中的SQL配置信息，是对Mapper XML配置文件中<select|update|delete|insert>等标签或者@Select/@Update等注解配置信息的封装.
  * @author Clinton Begin
  */
 public final class MappedStatement {
 
   private String resource;
   private Configuration configuration;
+  // 在命名空间中唯一的标识符,可以被用来引用这条配置信息
   private String id;
+  // 返回最大行数
   private Integer fetchSize;
+  // 超时时间
   private Integer timeout;
+  // Statement、PreparedStatement或CallableStatement
   private StatementType statementType;
+  //
   private ResultSetType resultSetType;
   private SqlSource sqlSource;
   private Cache cache;
+  // 废弃属性
   private ParameterMap parameterMap;
   private List<ResultMap> resultMaps;
   private boolean flushCacheRequired;
   private boolean useCache;
   private boolean resultOrdered;
   private SqlCommandType sqlCommandType;
+  // useGeneratedKeys 为true ,自动生成主键类型
   private KeyGenerator keyGenerator;
   private String[] keyProperties;
   private String[] keyColumns;
   private boolean hasNestedResultMaps;
   private String databaseId;
   private Log statementLog;
+  // 指定LanguageDriver实现
   private LanguageDriver lang;
   private String[] resultSets;
 

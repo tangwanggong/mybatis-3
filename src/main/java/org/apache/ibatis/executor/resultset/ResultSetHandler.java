@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.ibatis.cursor.Cursor;
 
 /**
+ * 封装对JDBC ResultSet对象的操作,当执行SQL类型为SELECT时,ResultSetHandler用于将查询结果转换为Java对象
  * @author Clinton Begin
  */
 public interface ResultSetHandler {

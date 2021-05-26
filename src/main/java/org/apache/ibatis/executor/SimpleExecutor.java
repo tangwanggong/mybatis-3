@@ -32,6 +32,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * 简单的增删改查
  * @author Clinton Begin
  */
 public class SimpleExecutor extends BaseExecutor {

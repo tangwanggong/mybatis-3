@@ -33,6 +33,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * 装饰器模式的应用
  * @author Clinton Begin
  * @author Eduardo Macarron
  */

@@ -20,7 +20,7 @@ import java.sql.SQLException;
 
 /**
  * A parameter handler sets the parameters of the {@code PreparedStatement}.
- *
+ * 当Mybatis框架使用的Statement类型为CallableStatement或PreparedStatement时,ParameterHandler为Statement对象参数占位符设置值
  * @author Clinton Begin
  */
 public interface ParameterHandler {

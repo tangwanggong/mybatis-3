@@ -33,6 +33,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
+ * 封装了PreparedStatement
  * @author Clinton Begin
  */
 public class PreparedStatementHandler extends BaseStatementHandler {

@@ -21,10 +21,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * 类型处理器,处理Java类型和JDBC类型之间的映射,
+ * 主要作用能够根据Java类型调用PreparedStatement或CallableStatement对象对应的setXXX()方法为Statement对象设置值,
+ * 能够根据Java类型调用ResultSet对象对应的getXXX()获取SQL执行结果
  * @author Clinton Begin
  */
 public interface TypeHandler<T> {
 
+  // 为PreparedStatement对象设置参数
   void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
   /**
@@ -38,10 +42,13 @@ public interface TypeHandler<T> {
    * @throws SQLException
    *           the SQL exception
    */
+  // 通过列名称获取该列的值
   T getResult(ResultSet rs, String columnName) throws SQLException;
 
+  // 通过列索引获取该列的值
   T getResult(ResultSet rs, int columnIndex) throws SQLException;
 
+  // 获取存储过程调用结果
   T getResult(CallableStatement cs, int columnIndex) throws SQLException;
 
 }

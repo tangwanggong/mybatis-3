@@ -36,6 +36,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * 会对调用同一个Mapper执行的update,insert,delete操作。调用statement对象的批量操作功能
  * @author Jeff Butler
  */
 public class BatchExecutor extends BaseExecutor {

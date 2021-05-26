@@ -96,37 +96,60 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * Mybatis配置,其他组件需要获取配置信息时,直接通过Configuration对象获取,在启动时将Mapper配置信息,类型别名,TypeHandler注册到Configuration组件中,其他组件需要时,可以直接获取
  * @author Clinton Begin
  */
 public class Configuration {
 
   protected Environment environment;
 
+  // 允许在嵌套语句中使用分页(RowBound)
   protected boolean safeRowBoundsEnabled;
+  // 允许在嵌套语句中使用分页(ResultHandler)
   protected boolean safeResultHandlerEnabled = true;
+  // 是否开启自动驼峰命名规则映射
   protected boolean mapUnderscoreToCamelCase;
+  // 当开启时,任何方法的调用都会加载该对象的所有属性,否则属性只会按需加载
   protected boolean aggressiveLazyLoading;
+  // 是否允许单一语句返回多结果集
   protected boolean multipleResultSetsEnabled = true;
+  // 允许JDBC支持自动生成主键,需要驱动兼容.
   protected boolean useGeneratedKeys;
+  // 使用列标签代表列名
   protected boolean useColumnLabel = true;
+  // 是否开启二级缓存
   protected boolean cacheEnabled = true;
+  // 结果集的值为null的时候是否调用映射对象的Setter方法
   protected boolean callSettersOnNulls;
+  // 允许使用方法签名中的名称作为语句参数名称
   protected boolean useActualParamName = true;
+  // 当返回行的所有列都是空时,Mybatis默认返回null,设置为true时,会返回一个空的实例
   protected boolean returnInstanceForEmptyRow;
   protected boolean shrinkWhitespacesInSql;
 
+  // 指定Mybatis增加到日志名称的前缀
   protected String logPrefix;
+  // 指定Mybatis所用日志的具体实现
   protected Class<? extends Log> logImpl;
+  // vfs的实现?
   protected Class<? extends VFS> vfsImpl;
   protected Class<?> defaultSqlProviderType;
+  // Mybatis利用本地缓存机制防止循环引用和加速重复查询,session会缓存一个会话中执行的所有查询,statement仅用在语句执行上,对相同SqlSession的不同调用将不会共享
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+  // 将没有为参数指定JDBC类型时,指定JDBC类型的值为null。为null指定JDBC类型
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
+  // 指定哪个对象的方法会触发一次延时加载
   protected Set<String> lazyLoadTriggerMethods = new HashSet<>(Arrays.asList("equals", "clone", "hashCode", "toString"));
+  // 默认数据库响应超时时间
   protected Integer defaultStatementTimeout;
+  // 默认限制从数据库获取数据的最大行数
   protected Integer defaultFetchSize;
   protected ResultSetType defaultResultSetType;
+  // 默认Executor类型
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+  // 指定Mybatis应该如何自动映射列到Java实体属性,PARTIAL:只会自动映射没有定义嵌套结果集映射的结果集
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
+  // 指定发现自动映射目标未知列的行为,默认不做反应
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
   protected Properties variables = new Properties();
@@ -134,7 +157,9 @@ public class Configuration {
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
+  // 延时加载的全局开关,当开启时,所有关联对象都会延时加载
   protected boolean lazyLoadingEnabled = false;
+  // 指定Mybatis创建具有延时加载功能力对象所用到的代理工具
   protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
 
   protected String databaseId;
@@ -144,28 +169,44 @@ public class Configuration {
    *
    * @see <a href='https://github.com/mybatis/old-google-code-issues/issues/300'>Issue 300 (google code)</a>
    */
+  // 指定一个提供Configuration实例的类.
   protected Class<?> configurationFactory;
 
+  // 用于注册Mapper接口信息,建立Mapper接口的Class对象和MapperProxyFactory对象之间的关系,其中MapperProxyFactory对象用于创建Mapper动态代理对象
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  // 用于注册Mybatis插件信息，Mybatis插件实际上是个拦截器
   protected final InterceptorChain interceptorChain = new InterceptorChain();
+  // 用于注册所有TypeHandler,并建立JDBC类型,Jdbc类型与TypeHandler的关系
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
+  // 用于注册所有的类型别名
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+  // 用于注册LanguageDriver,LanguageDriver用于解析SQL配置,将配置信息转换成SqlSource对象
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
-
+  // MappedStatement对象描述<insert|select|update|delete>等标签或者通过@Select,@Delete等注解配置的SQL信息,
+  // MyBatis将所有的MappedStatement对象注册到该属性中,其中Key为Mapper的Id,Value为MapperStatement对象
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
+  // 用于注册Mapper中配置的缓存信息
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
+  // 用于注册Mapper配置文件中通过<resultMap>标签配置的ResultMap信息,ResultMap用于建立Java实体属性与数据库字段质检的映射关系,其中Key为ResultMap的Id
+  // 该Id为Mapper命名空间和<resultMap>标签的id属性组成,Value为解析<resultMap>标签后得到的ResultMap对象
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
+  // 用于注册Mapper中通过<parameterMap>标签注册的参数映射关系.Key为ParameterMap的Id
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
+  // 用于注册KeyGenerator,keyGenerator是Mybatis的主键生成器
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
-
+  // 用于注册所有Mapper XML配置文件路径
   protected final Set<String> loadedResources = new HashSet<>();
+  // 用于注册Mapper中通过<sql>标签配置的SQL片段
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
-
+  // 解析出现异常的XMLStatementBuilder对象
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
+  // 解析出现异常的CacheRefResolver对象
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
+  // 解析出现异常的ResultMapResolver对象
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
+  // 解析出现异常的MethodResolver对象
   protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
   /*
@@ -641,12 +682,14 @@ public class Configuration {
     return MetaObject.forObject(object, objectFactory, objectWrapperFactory, reflectorFactory);
   }
 
+  // ParameterHandler组件工厂方法
   public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
     return parameterHandler;
   }
 
+  // ResultSetHandler组件工厂方法
   public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
     ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
@@ -654,12 +697,14 @@ public class Configuration {
     return resultSetHandler;
   }
 
+  // StatementHandler组件工厂方法
   public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
   }
 
+  // Executor组件工厂方法
   public Executor newExecutor(Transaction transaction) {
     return newExecutor(transaction, defaultExecutorType);
   }
