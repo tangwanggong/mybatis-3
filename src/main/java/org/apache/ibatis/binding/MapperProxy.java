@@ -83,6 +83,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else {
+        // 调用invoke方法调用MapperMethod的execute方法进行sql语句执行
         return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
       }
     } catch (Throwable t) {
@@ -92,7 +93,9 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
+      // 如果缓存不存在调用方法,则缓存该方法
       return MapUtil.computeIfAbsent(methodCache, method, m -> {
+        // 如果是default定义的默认方法
         if (m.isDefault()) {
           try {
             if (privateLookupInMethod == null) {

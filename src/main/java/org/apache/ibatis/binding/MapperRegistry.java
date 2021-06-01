@@ -64,6 +64,7 @@ public class MapperRegistry {
       }
       boolean loadCompleted = false;
       try {
+        // 每个类注册不同的MapperProxyFactory
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the

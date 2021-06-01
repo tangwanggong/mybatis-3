@@ -46,7 +46,9 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class MapperMethod {
 
+  //SQL语句的类型Mapper的Id等
   private final SqlCommand command;
+  // 获取方法的签名信息
   private final MethodSignature method;
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
@@ -56,9 +58,12 @@ public class MapperMethod {
 
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
+    // 获取SQL语句类型
     switch (command.getType()) {
       case INSERT: {
+        // 获取参数信息
         Object param = method.convertArgsToSqlCommandParam(args);
+        // 调用sqlSession的insert方法,然后调用rowCountResult统计行数
         result = rowCountResult(sqlSession.insert(command.getName(), param));
         break;
       }
@@ -218,12 +223,16 @@ public class MapperMethod {
 
   public static class SqlCommand {
 
+    // Mapper Id
     private final String name;
+    // SQL类型
     private final SqlCommandType type;
 
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
       final String methodName = method.getName();
+      // 该方法的类或接口的Class对象
       final Class<?> declaringClass = method.getDeclaringClass();
+      // 获取描述<s|u|d|i>标签的MappedStatement
       MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,
           configuration);
       if (ms == null) {
@@ -253,12 +262,15 @@ public class MapperMethod {
 
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName,
         Class<?> declaringClass, Configuration configuration) {
+      // 获取Mapper id
       String statementId = mapperInterface.getName() + "." + methodName;
       if (configuration.hasStatement(statementId)) {
+        // 如果Configuration对象中已经注册了MappedStatement对象,则获取该MappedStatement对象
         return configuration.getMappedStatement(statementId);
       } else if (mapperInterface.equals(declaringClass)) {
         return null;
       }
+      // 如果方法是在Mapper父接口中定义的,则根据父接口获取对应的MappedStatement对象
       for (Class<?> superInterface : mapperInterface.getInterfaces()) {
         if (declaringClass.isAssignableFrom(superInterface)) {
           MappedStatement ms = resolveMappedStatement(superInterface, methodName,
@@ -286,6 +298,7 @@ public class MapperMethod {
     private final ParamNameResolver paramNameResolver;
 
     public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {
+      // 获取方法返回值类型
       Type resolvedReturnType = TypeParameterResolver.resolveReturnType(method, mapperInterface);
       if (resolvedReturnType instanceof Class<?>) {
         this.returnType = (Class<?>) resolvedReturnType;
@@ -294,14 +307,22 @@ public class MapperMethod {
       } else {
         this.returnType = method.getReturnType();
       }
+      // 是否返回为void
       this.returnsVoid = void.class.equals(this.returnType);
+      // 是否返回值类型为集合
       this.returnsMany = configuration.getObjectFactory().isCollection(this.returnType) || this.returnType.isArray();
+      // 是否返回值类型为Cursor
       this.returnsCursor = Cursor.class.equals(this.returnType);
+      // 是否返回值类型为Optional
       this.returnsOptional = Optional.class.equals(this.returnType);
       this.mapKey = getMapKey(method);
+      // 是否返回值类型为Map
       this.returnsMap = this.mapKey != null;
+      // RowBounds参数位置索引
       this.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);
+      // ResultHandler参数位置索引
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
+      // paramNameResolver用于解析Mapper方法参数
       this.paramNameResolver = new ParamNameResolver(configuration, method);
     }
 

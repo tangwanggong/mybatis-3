@@ -147,7 +147,9 @@ public class DefaultSqlSession implements SqlSession {
 
   private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
+      // 根据Mapper Id获取MappedStatement
       MappedStatement ms = configuration.getMappedStatement(statement);
+      // 已MappedStatement对象作为参数，调用Executor的query()方法
       return executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);

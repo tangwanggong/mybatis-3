@@ -103,20 +103,34 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first
+      // 配置属性信息
       propertiesElement(root.evalNode("properties"));
+      // 通过一些属性来控制MyBatis运行时的一些行为
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
+      // 配置类型别名
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 用户自定义的插件信息
       pluginElement(root.evalNode("plugins"));
+      // MyBatis通过对象工厂(ObjectFactory)创建参数对象和结果集映射对象,默认的对象工厂需要做的仅仅是实例化目标类,
+      // 要么通过默认构造方法，要么在参数映射在的时候通过参数构造方法实例化. objectFactory 配置用户自定义的对象工厂
       objectFactoryElement(root.evalNode("objectFactory"));
+      // MyBatis通过ObjectWrapperFactory创建ObjectWrapper对象,通过ObjectWrapper对象能够很方便地获取对象的属性,方法名等反射信息/
+      // objectWrapperFactory用于配置用户自定义的ObjectWrapperFactory
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+      // MyBatis通过反射工厂创建描述Java类型反射信息的Reflector对象,通过Reflector对象能获取Class对象的Setter/Getter方法属性
+      // reflectorFactory用于配置自定义的反射工厂
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
+      // 用于配置MyBatis数据连接相关的环境及事务管理器信息.可配置多个信息
       environmentsElement(root.evalNode("environments"));
+      // 用于配置数据库厂商信息
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      // 用于注册用户自定义的类型处理器(TypeHandler)
       typeHandlerElement(root.evalNode("typeHandlers"));
+      // 配置MyBatis Mapper信息
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -366,11 +380,13 @@ public class XMLConfigBuilder extends BaseBuilder {
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
+          // 通过包名添加Mapper接口
           configuration.addMappers(mapperPackage);
         } else {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
+          // 通过 resource 属性指定XML文件路径
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
             try(InputStream inputStream = Resources.getResourceAsStream(resource)) {
@@ -378,6 +394,7 @@ public class XMLConfigBuilder extends BaseBuilder {
               mapperParser.parse();
             }
           } else if (resource == null && url != null && mapperClass == null) {
+            // 通过url属性置顶XML文件路径
             ErrorContext.instance().resource(url);
             try(InputStream inputStream = Resources.getUrlAsStream(url)){
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
@@ -385,6 +402,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             }
           } else if (resource == null && url == null && mapperClass != null) {
             Class<?> mapperInterface = Resources.classForName(mapperClass);
+            // 通过class属性指定接口的完全限定名添加Mapper接口
             configuration.addMapper(mapperInterface);
           } else {
             throw new BuilderException("A mapper element may only specify a url, resource or class, but not more than one.");
