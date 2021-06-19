@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 最近最少使用的缓存装饰器,当缓存容量满了,淘汰最近最少使用的key 和 value
  * Lru (least recently used) cache decorator.
  *
  * @author Clinton Begin

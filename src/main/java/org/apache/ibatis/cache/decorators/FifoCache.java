@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 先进先出缓存装饰器,内部维护了LinkedList实例和一个被装饰的缓存对象
  * FIFO (first in, first out) cache decorator.
  *
  * @author Clinton Begin

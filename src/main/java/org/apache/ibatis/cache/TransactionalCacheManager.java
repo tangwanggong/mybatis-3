@@ -26,6 +26,7 @@ import org.apache.ibatis.util.MapUtil;
  */
 public class TransactionalCacheManager {
 
+  // 通过HashMap对象维护二级缓存对应的TransactionalCache实例
   private final Map<Cache, TransactionalCache> transactionalCaches = new HashMap<>();
 
   public void clear(Cache cache) {
@@ -33,6 +34,7 @@ public class TransactionalCacheManager {
   }
 
   public Object getObject(Cache cache, CacheKey key) {
+    // 获取二级缓存对应的TransactionalCache对象，然后根据缓存Key获取缓存对象
     return getTransactionalCache(cache).getObject(key);
   }
 

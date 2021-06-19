@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 自动刷新缓存装饰器，当操作缓存对象时,如果当前时间与上次清空缓存的时间间隔大于指定的时间间隔,则清空缓存
  * @author Clinton Begin
  */
 public class ScheduledCache implements Cache {

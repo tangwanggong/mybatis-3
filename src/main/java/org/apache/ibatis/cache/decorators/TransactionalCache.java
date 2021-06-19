@@ -31,7 +31,7 @@ import org.apache.ibatis.logging.LogFactory;
  * Entries are sent to the cache when commit is called or discarded if the Session is rolled back.
  * Blocking cache support has been added. Therefore any get() that returns a cache miss
  * will be followed by a put() so any lock associated with the key can be released.
- *
+ * 事务缓存装饰器，只有调用commit()方法后，缓存对象才会添加到TransactionalCache对象中,如果调用rollback,写入操作被回滚
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
